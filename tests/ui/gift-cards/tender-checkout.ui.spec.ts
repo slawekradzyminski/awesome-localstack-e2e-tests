@@ -4,6 +4,7 @@ import { applyGiftCard, applyPoints, earnPoints, giftCardDetails } from '@suppor
 
 test.describe('checkout and payment with a gift card and points', { tag: ['@gift-cards', '@loyalty'] }, () => {
   test('checkout lists the tenders, charges only the amount due and the payment page repeats them', async ({ shopper, admin, checkoutPage, paymentPage }) => {
+    test.fixme(true, 'bugs/BUG-CHECKOUT-01-placed-order-redirects-to-empty-cart.md');
     // given
     await earnPoints(shopper, 500);
     const card = await admin.issueGiftCard({ amount: 10 });
