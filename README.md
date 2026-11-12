@@ -1,8 +1,9 @@
 # awesome-localstack e2e tests
 
 The reference Playwright suite for [awesome-localstack](https://github.com/slawekradzyminski/awesome-localstack).
-It tests the commerce features end to end through the public gateway. That means the API,
-the browser, and journeys that follow one order across every service.
+It tests the application end to end through the public gateway: the API, the browser, and
+journeys that follow one order across every service. The commerce features are covered in
+depth, and the regression tests for every defect fixed in the older features are included too.
 
 | Feature | Services involved |
 | --- | --- |
@@ -13,9 +14,13 @@ the browser, and journeys that follow one order across every service.
 | Shipment tracking (simulated carrier) | warehouse-service → backend mirror |
 | User webhooks with HMAC signatures | backend outbox → built-in inbox |
 | Refunds and cancellations | backend event feed → payment-service and warehouse-service |
+| Accounts, identity and validation | backend |
+| Catalog, cart, coupons, orders, admin screens | backend + frontend |
+| QR codes and LLM chat | backend + frontend + ollama-mock |
 
-**606 tests**: 441 API, 160 UI and 5 journeys, plus 4 stack-health checks. They run in
-about 11 minutes with 3 workers against a laptop stack.
+**728 tests**: 528 API, 195 UI and 5 journeys, plus 4 stack-health checks. They run in
+about 4 minutes with 4 workers against a laptop stack (about 600 MB of RAM for the whole
+lightweight profile).
 
 ## Run it
 
@@ -106,6 +111,14 @@ regressions. A bug found later gets a report, and its test stays marked
 - **Admin lists that never showed a row saved during their first load.**
 - **A placed order could land on the empty cart instead of its payment page** on a slow device.
   A CPU-throttled test (`Emulation.setCPUThrottlingRate`) now reproduces it deterministically.
+
+Course groups found more defects in the older features (sign-up and sign-in validation,
+accessibility, layout, QR, LLM chat): 186 reports, which collapse to 82 unique defects. The 48
+that still reproduced are fixed in backend 3.18.0, frontend 3.13.0 and ollama-mock 1.0.12. Their
+regression tests live in the `@accounts`, `@catalog`, `@orders`, `@cart`, `@coupons`,
+`@admin`, `@qr`, `@llm` and `@graphql` folders. The bugs documented in the AI Testers API
+course are deliberately left in the application, and so is any behaviour the course's l20
+suite asserts.
 
 ## CI
 
