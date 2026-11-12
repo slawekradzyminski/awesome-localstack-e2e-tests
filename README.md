@@ -92,9 +92,9 @@ Patterns worth copying:
 
 ## Bugs found
 
-On its first full run the suite found 11 defects in four services. Each one has a report in
+The suite found 12 defects in four services: 11 on its first full run and one on its first CI run. Each one has a report in
 [`bugs/`](bugs/), and all of them are fixed: backend 3.17.1, payment-service 1.2.1,
-warehouse-service 1.4.1 and frontend 3.12.1. The tests that caught them now guard against
+warehouse-service 1.4.1 and frontend 3.12.2. The tests that caught them now guard against
 regressions. A bug found later gets a report, and its test stays marked
 `test.fixme(true, 'bugs/<file>.md')` until the fix is pinned. Highlights:
 
@@ -104,6 +104,8 @@ regressions. A bug found later gets a report, and its test stays marked
 - **Deleting a user raced with email events** and failed with a foreign-key violation.
 - **A gift card expiry shifted by the admin's time zone.**
 - **Admin lists that never showed a row saved during their first load.**
+- **A placed order could land on the empty cart instead of its payment page** on a slow device.
+  A CPU-throttled test (`Emulation.setCPUThrottlingRate`) now reproduces it deterministically.
 
 ## CI
 

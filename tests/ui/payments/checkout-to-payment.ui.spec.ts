@@ -5,7 +5,6 @@ import { addresses } from '@support/addresses';
 // device where the emptied cart is refetched before the payment page has replaced the checkout.
 test.describe('checkout to payment', { tag: ['@payments'] }, () => {
   test('placing an order opens its payment page on a slow device', async ({ shopper, page, checkoutPage, paymentPage }) => {
-    test.fixme(true, 'bugs/BUG-CHECKOUT-01-placed-order-redirects-to-empty-cart.md');
     // given
     await shopper.fillCart({ price: 30 });
     await checkoutPage.goto();

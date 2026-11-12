@@ -1,6 +1,6 @@
 # BUG-CHECKOUT-01: after placing an order the customer can land on the empty cart instead of the payment page
 
-**Status:** open (frontend 3.12.1)
+**Status:** fixed in frontend 3.12.2 (2026-11-12); the tests asserting it are active again.
 **Severity:** high (the customer is sent away from paying for the order they just placed)
 **Found by:** `tests/ui/gift-cards/tender-checkout.ui.spec.ts` on the GitHub Actions runner (failed on the first attempt and on the retry; passes on a fast laptop).
 
@@ -26,3 +26,8 @@ Trace of CI run 43205600565: `POST /api/v1/orders 201` → navigated to `/orders
 `CheckoutForm`'s `onSuccess` invalidates `['cart']` and navigates to the pay page. While the pay page's lazy route
 is still loading, `CheckoutPage` stays mounted, receives the refetched empty cart and renders `<Navigate to="/cart" />`,
 which overrides the navigation to the payment page.
+
+## Fix (frontend 3.12.2)
+React Router runs every navigation inside `startTransition`, so the urgent update from the refetched empty cart won
+over the pending navigation. `CheckoutForm` now reports the placed order first, navigates with `replace`, and only then
+refreshes the cart; `CheckoutPage` shows "Order placed. Opening payment…" instead of redirecting once it placed an order.
