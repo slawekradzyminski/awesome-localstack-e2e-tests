@@ -7,10 +7,11 @@ import { expectContainedIn, expectReachable, expectReadableText, PHONE } from '@
 test.describe('catalog layout', { tag: ['@catalog'] }, () => {
   test('a long category stays inside its product card and the category filter (T-059)', async ({ api, productSearchPage, shopperPage }) => {
     // given
-    // A short name stays on one line, so the centre of its link is on the text.
+    // A short name and a short price keep the name on one line, so the centre of its link is on the text
+    // (a random four-digit price makes the badge wide enough to wrap the name).
     const name = `Lamp ${randomUUID().slice(0, 6)}`;
     const category = `ProbeLongCategoryLongCategoryLongCategory${randomUUID().slice(0, 6)}`;
-    await api.createProduct({ name, category });
+    await api.createProduct({ name, category, price: 9.99 });
     await shopperPage.setViewportSize({ width: 1440, height: 900 });
     const filters = new CatalogFilters(shopperPage);
 
