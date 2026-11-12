@@ -1,5 +1,7 @@
 # BUG-TAX-01: Admin VAT rates and currencies lists miss a row saved while the first list load is in flight
 
+**Status:** fixed in frontend 3.12.1 (2026-11-12); the test asserting it is active again.
+
 Severity: low (stale UI, data is saved correctly; a reload shows the row).
 
 ## Environment

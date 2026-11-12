@@ -1,5 +1,7 @@
 # BUG-GIFTCARDS-01: Unknown gift card status filter answers with a Java class name instead of the documented ErrorDto
 
+**Status:** fixed in backend 3.17.1 (2026-11-12); the test asserting it is active again.
+
 ## Environment
 - Local awesome-localstack (`http://localhost:8081`), backend 3.17.0
 - Endpoint: `GET /api/v1/admin/gift-cards?status=...` (ROLE_ADMIN)

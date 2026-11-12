@@ -1,5 +1,7 @@
 # BUG-PAYMENTS-02: concurrent payments starve the connection pool and fail with 500 after 30 s
 
+**Status:** fixed in payment-service 1.2.1 (2026-11-12); the test asserting it is active again.
+
 **Severity:** high (production uses the same pool size of 3)
 **Component:** payment-service 1.2.0
 **Found by:** the full suite with 6 workers; reproduced by `tests/api/payments/concurrency.api.spec.ts`

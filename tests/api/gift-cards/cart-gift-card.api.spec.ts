@@ -130,16 +130,13 @@ test.describe('PUT /api/v1/cart/gift-card', { tag: ['@gift-cards'] }, () => {
     // when
     const response = await shopper.tenders.applyGiftCard('');
 
-    // then: two constraints fail on the field and the backend reports one of them (see BUG-GIFTCARDS-04)
+    // then
     await expect(response).toHaveStatus(400);
-    expect(await response.json()).toEqual({
-      code: expect.stringMatching(/^(Gift card code is required|Gift card code must be 1-32 characters)$/),
-    });
+    expect(await response.json()).toEqual({ code: 'Gift card code is required' });
     expect(await readCart(shopper)).not.toHaveProperty('giftCardCode');
   });
 
   test('a blank code always gets the same validation message - 400', async ({ shopper }) => {
-    test.fixme(true, 'bugs/BUG-GIFTCARDS-04-blank-code-message-is-random.md');
     // given
     await shopper.fillCart({ price: 20 });
 

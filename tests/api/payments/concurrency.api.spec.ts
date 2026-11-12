@@ -7,7 +7,6 @@ const CONCURRENT_PAYMENTS = 8;
 
 test.describe('POST /api/v1/payments under concurrency', { tag: ['@payments'] }, () => {
   test('pays many first-time orders at the same moment without exhausting the connection pool - 201', async ({ api }) => {
-    test.fixme(true, 'bugs/BUG-PAYMENTS-02-connection-pool-starvation-under-concurrent-payments.md');
     // given
     const shoppers = await Promise.all(Array.from({ length: CONCURRENT_PAYMENTS }, () => Shopper.create(api)));
     const orders = await Promise.all(shoppers.map(async shopper => (await shopper.placeOrder(25)).order));

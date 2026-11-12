@@ -29,7 +29,6 @@ test.describe('POST /api/v1/payments Idempotency-Key', { tag: ['@payments'] }, (
   });
 
   test('replays the original payment with identical timestamps - 200', async ({ shopper }) => {
-    test.fixme(true, 'bugs/BUG-PAYMENTS-01-create-response-timestamps-differ-from-stored.md');
     // given
     const { order } = await shopper.placeOrder(40);
     const key = newIdempotencyKey();

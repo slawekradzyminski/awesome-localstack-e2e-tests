@@ -97,7 +97,6 @@ test.describe('admin currencies page', { tag: ['@currencies'] }, () => {
 
 test.describe('admin currencies page while the list loads', { tag: ['@currencies'] }, () => {
   test('shows a currency saved before the first list response arrived', async ({ admin, adminPage, adminCurrenciesPage }) => {
-    test.fixme(true, 'bugs/BUG-TAX-01-admin-list-misses-save-during-first-load.md');
     // given
     const code = await unusedCurrencyCode(admin.tax);
     const listResponse = holdResponses(adminPage, '**/api/v1/currencies');

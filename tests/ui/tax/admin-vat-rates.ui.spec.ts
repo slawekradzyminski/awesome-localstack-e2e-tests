@@ -100,7 +100,6 @@ test.describe('admin VAT rates page', { tag: ['@tax'] }, () => {
 
 test.describe('admin VAT rates page while the list loads', { tag: ['@tax'] }, () => {
   test('shows a country saved before the first list response arrived', async ({ admin, adminPage, adminVatRatesPage }) => {
-    test.fixme(true, 'bugs/BUG-TAX-01-admin-list-misses-save-during-first-load.md');
     // given
     const code = await unusedCountryCode(admin.tax);
     const listResponse = holdResponses(adminPage, '**/api/v1/vat-rates');

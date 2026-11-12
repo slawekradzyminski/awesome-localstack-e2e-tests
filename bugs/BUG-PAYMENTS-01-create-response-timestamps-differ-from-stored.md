@@ -1,5 +1,7 @@
 # BUG-PAYMENTS-01: POST /api/v1/payments answers with timestamps that differ from the stored payment
 
+**Status:** fixed in payment-service 1.2.1 (2026-11-12); the test asserting it is active again.
+
 Severity: low (data consistency of the public API; no money impact).
 
 ## Environment

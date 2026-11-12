@@ -92,14 +92,18 @@ Patterns worth copying:
 
 ## Bugs found
 
-The suite found real defects, and each one has a report in [`bugs/`](bugs/). Its test asserts
-the correct behaviour and stays marked `test.fixme` until the fixed version is pinned in
-awesome-localstack. Examples:
+On its first full run the suite found 11 defects in four services. Each one has a report in
+[`bugs/`](bugs/), and all of them are fixed: backend 3.17.1, payment-service 1.2.1,
+warehouse-service 1.4.1 and frontend 3.12.1. The tests that caught them now guard against
+regressions. A bug found later gets a report, and its test stays marked
+`test.fixme(true, 'bugs/<file>.md')` until the fix is pinned. Highlights:
 
-- Connection-pool starvation in payment-service and warehouse-service under concurrent
-  requests: every caller got a 500 after 30 s.
-- A gift card expiry shifted by the admin's time zone.
-- Admin lists that never showed a row saved during their first load.
+- **Connection-pool starvation in payment-service and warehouse-service.** Three concurrent
+  first payments deadlocked a pool of three connections, and every caller got a 500 after 30 s.
+- **Event-feed retention job never deleted anything.** A transactional self-call failed on every scheduled run.
+- **Deleting a user raced with email events** and failed with a foreign-key violation.
+- **A gift card expiry shifted by the admin's time zone.**
+- **Admin lists that never showed a row saved during their first load.**
 
 ## CI
 

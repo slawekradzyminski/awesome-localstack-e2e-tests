@@ -47,11 +47,11 @@ test.describe('admin gift cards page', { tag: ['@gift-cards'] }, () => {
     // then
     await expect(adminGiftCardsPage.issuedCode).toHaveText(GIFT_CARD_CODE);
     const card = await giftCardDetails(admin, (await adminGiftCardsPage.issuedCode.textContent())!);
-    expect(card.expiresAt?.slice(0, 16)).toBe(expires);
+    // the form sends the picked local time as a UTC instant; the backend stores UTC
+    expect(card.expiresAt?.slice(0, 16)).toBe(new Date(expires).toISOString().slice(0, 16));
   });
 
   test('an expiry picked in a browser east of the server zone is stored as the same instant', async ({ browser, baseURL, request, admin }) => {
-    test.fixme(true, 'bugs/BUG-GIFTCARDS-02-expiry-ignores-admin-time-zone.md');
     // given: an administrator in Auckland (UTC+12/+13) picks an expiry three hours from now
     const context = await browser.newContext({ baseURL: baseURL ?? APP_BASE_URL, timezoneId: 'Pacific/Auckland' });
     try {

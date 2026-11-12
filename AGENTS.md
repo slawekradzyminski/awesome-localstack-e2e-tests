@@ -69,6 +69,5 @@ npm run test:fast                              # skips @slow
 npm run test:payments                          # one feature (see package.json)
 ```
 
-payment-service and warehouse-service can answer 500 after ~30 s under heavy concurrency
-(bugs/BUG-PAYMENTS-02, bugs/BUG-WAREHOUSE-01). If a test fails that way, rerun it before
-suspecting the change; lower `--workers` on a loaded machine.
+On a loaded laptop, lower `--workers` before suspecting a change; a test that fails only under load is
+worth a bug report (that is how the connection-pool bugs in `bugs/` were found).

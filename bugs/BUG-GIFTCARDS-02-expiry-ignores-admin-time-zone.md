@@ -1,5 +1,7 @@
 # BUG-GIFTCARDS-02: Gift card expiry picked in the admin UI is shifted by the browser's UTC offset
 
+**Status:** fixed in frontend 3.12.1 (2026-11-12); the test asserting it is active again.
+
 ## Environment
 - Local awesome-localstack (`http://localhost:8081`), frontend 3.12.0, backend 3.17.0 (server clock in UTC)
 - Page: `/admin/gift-cards`, "Issue a gift card" form, field "Expires (optional)" (`datetime-local`)

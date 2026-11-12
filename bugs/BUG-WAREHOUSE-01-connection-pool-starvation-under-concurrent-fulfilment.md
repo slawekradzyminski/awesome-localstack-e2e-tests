@@ -1,5 +1,7 @@
 # BUG-WAREHOUSE-01: concurrent fulfilment starves the connection pool and fails with 500 after 30 s
 
+**Status:** fixed in warehouse-service 1.4.1 (2026-11-12); the test asserting it is active again.
+
 **Severity:** high (production uses the same pool size of 3)
 **Component:** warehouse-service 1.4.0
 **Found by:** the full suite with 6 workers; reproduced by `tests/api/tracking/concurrency.api.spec.ts`

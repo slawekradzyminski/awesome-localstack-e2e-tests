@@ -1,5 +1,7 @@
 # BUG-GIFTCARDS-04: Applying a blank gift card code returns a randomly chosen validation message
 
+**Status:** fixed in backend 3.17.1 (2026-11-12); the test asserting it is active again.
+
 ## Environment
 - Local awesome-localstack (`http://localhost:8081`), backend 3.17.0
 - Endpoint: `PUT /api/v1/cart/gift-card` (any signed-in user with a non-empty cart)

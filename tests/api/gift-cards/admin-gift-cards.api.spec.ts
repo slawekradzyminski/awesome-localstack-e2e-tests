@@ -219,7 +219,6 @@ test.describe('GET /api/v1/admin/gift-cards', { tag: ['@gift-cards'] }, () => {
   });
 
   test('an unknown status is answered with the documented ErrorDto - 400', async ({ admin }) => {
-    test.fixme(true, 'bugs/BUG-GIFTCARDS-01-unknown-status-error-body.md');
     // when
     const response = await admin.giftCards.list({ status: 'LOST' as GiftCardStatus });
 

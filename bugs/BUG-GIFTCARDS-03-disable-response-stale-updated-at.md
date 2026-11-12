@@ -1,5 +1,7 @@
 # BUG-GIFTCARDS-03: Disabling a gift card answers with the old updatedAt
 
+**Status:** fixed in backend 3.17.1 (2026-11-12); the test asserting it is active again.
+
 ## Environment
 - Local awesome-localstack (`http://localhost:8081`), backend 3.17.0
 - Endpoint: `POST /api/v1/admin/gift-cards/{code}/disable` (ROLE_ADMIN)

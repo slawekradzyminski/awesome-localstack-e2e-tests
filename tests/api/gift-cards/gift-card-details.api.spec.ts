@@ -87,7 +87,6 @@ test.describe('POST /api/v1/admin/gift-cards/{code}/disable', { tag: ['@gift-car
   });
 
   test('the disable response carries the same updatedAt as the stored card - 200', async ({ admin }) => {
-    test.fixme(true, 'bugs/BUG-GIFTCARDS-03-disable-response-stale-updated-at.md');
     // given
     const card = await admin.issueGiftCard({ amount: 25 });
 

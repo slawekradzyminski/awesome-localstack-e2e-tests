@@ -6,7 +6,6 @@ const CONCURRENT_SHIPMENTS = 8;
 
 test.describe('warehouse fulfilment under concurrency', { tag: ['@tracking'] }, () => {
   test('creates, picks, packs and ships many orders at the same moment - 200', async ({ api, warehouse, parcels }) => {
-    test.fixme(true, 'bugs/BUG-WAREHOUSE-01-connection-pool-starvation-under-concurrent-fulfilment.md');
     // given
     const shoppers = await Promise.all(Array.from({ length: CONCURRENT_SHIPMENTS }, () => Shopper.create(api)));
     const orders = await Promise.all(shoppers.map(async shopper => {
