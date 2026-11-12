@@ -161,18 +161,20 @@ test.describe('GET /api/v1/admin/gift-cards', { tag: ['@gift-cards'] }, () => {
     await admin.issueGiftCard();
     await admin.issueGiftCard();
 
-    // when
-    const first = await list(admin.giftCards, { page: 0, size: 1 });
-    const second = await list(admin.giftCards, { page: 1, size: 1 });
+    // when / then: the list is shared with parallel tests and sorted newest first, so a card issued
+    // between two reads shifts every page by one. Compare both pages with one size-2 read of the same
+    // moment and read again when another test wrote in between.
+    await expect(async () => {
+      const both = await list(admin.giftCards, { page: 0, size: 2 });
+      const first = await list(admin.giftCards, { page: 0, size: 1 });
+      const second = await list(admin.giftCards, { page: 1, size: 1 });
 
-    // then
-    expect(first).toMatchObject({ pageNumber: 0, pageSize: 1 });
-    expect(second).toMatchObject({ pageNumber: 1, pageSize: 1 });
-    expect(first.content).toHaveLength(1);
-    expect(second.content).toHaveLength(1);
-    expect(first.totalElements).toBeGreaterThanOrEqual(2);
-    expect(first.totalPages).toBe(first.totalElements);
-    expect(second.content[0].code).not.toBe(first.content[0].code);
+      expect(first).toMatchObject({ pageNumber: 0, pageSize: 1 });
+      expect(second).toMatchObject({ pageNumber: 1, pageSize: 1 });
+      expect(first.totalElements).toBeGreaterThanOrEqual(2);
+      expect(first.totalPages).toBe(first.totalElements);
+      expect([first.content[0].code, second.content[0].code]).toEqual(both.content.map(card => card.code));
+    }).toPass({ timeout: 15_000 });
   });
 
   test('clamps a negative page and an out-of-range size - 200', async ({ admin }) => {
