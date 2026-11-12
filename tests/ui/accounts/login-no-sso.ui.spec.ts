@@ -31,6 +31,7 @@ test.describe('login without single sign-on', { tag: ['@accounts'] }, () => {
     // then
     await expect(appMain).toBeAttached();
     await expect(page.getByTestId('sso-callback-page')).toHaveCount(0);
-    await expect(appMain).toBeEmpty();
+    // Since frontend 3.14.0 an unknown route shows the not-found page instead of an empty main (X-32).
+    await expect(appMain.getByRole('heading', { level: 1, name: 'Page not found' })).toBeVisible();
   });
 });
