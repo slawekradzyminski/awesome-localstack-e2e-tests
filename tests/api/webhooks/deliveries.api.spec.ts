@@ -53,7 +53,8 @@ test.describe('GET /api/v1/webhooks/{id}/deliveries', { tag: ['@webhooks'] }, ()
 
     // then
     await expect(response).toHaveStatus(400);
-    expect(await response.json()).toEqual({ error: 'No enum constant com.awesome.testing.dto.webhook.WebhookDeliveryStatus.LOST' });
+    // backend 3.18.0 (T-006) names the parameter and the allowed values instead of the Java enum class
+    expect(await response.json()).toEqual({ error: "Unknown status 'LOST'. Allowed values: PENDING, DELIVERED, FAILED" });
   });
 
   test('refuses another user\'s delivery log - 403', async ({ shopper, otherShopper }) => {
@@ -115,7 +116,8 @@ test.describe('GET /api/v1/webhooks/{id}/deliveries/{deliveryId}', { tag: ['@web
 
     // then
     await expect(response).toHaveStatus(400);
-    expect(await response.json()).toEqual({ error: 'Invalid UUID string: not-a-uuid' });
+    // backend 3.18.0 (T-006) names the parameter instead of echoing the parser message
+    expect(await response.json()).toEqual({ error: "Invalid deliveryId 'not-a-uuid': must be a valid UUID" });
   });
 
   test('refuses another user\'s delivery - 403', async ({ shopper, otherShopper }) => {
