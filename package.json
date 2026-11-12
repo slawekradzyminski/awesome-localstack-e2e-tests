@@ -1,0 +1,47 @@
+{
+  "name": "awesome-localstack-e2e-tests",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:ui": "playwright test --project=ui",
+    "test:journeys": "playwright test --project=journeys",
+    "test:fast": "playwright test --grep-invert @slow",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:payments": "playwright test --grep @payments",
+    "test:gift-cards": "playwright test --grep @gift-cards",
+    "test:loyalty": "playwright test --grep @loyalty",
+    "test:tax": "playwright test --grep \"@tax|@currencies\"",
+    "test:search": "playwright test --grep @search",
+    "test:tracking": "playwright test --grep @tracking",
+    "test:webhooks": "playwright test --grep @webhooks",
+    "report": "playwright show-report",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint . --max-warnings=0",
+    "check": "npm run typecheck && npm run lint"
+  },
+  "keywords": [
+    "playwright",
+    "e2e",
+    "api-testing",
+    "typescript",
+    "awesome-localstack"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "description": "Playwright API, UI and cross-service journey tests for the awesome-localstack commerce features",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^24.19.2",
+    "eslint": "^10.14.0",
+    "eslint-plugin-playwright": "^2.12.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2"
+  },
+  "private": true
+}

@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "noEmit": true,
+    "paths": {
+      "@api/*": ["./api/*"],
+      "@config": ["./test-config.ts"],
+      "@fixtures": ["./fixtures/index.ts"],
+      "@models/*": ["./models/*"],
+      "@pages/*": ["./pages/*"],
+      "@support/*": ["./support/*"]
+    }
+  },
+  "include": [
+    "playwright.config.ts",
+    "test-config.ts",
+    "api/**/*.ts",
+    "fixtures/**/*.ts",
+    "models/**/*.ts",
+    "pages/**/*.ts",
+    "support/**/*.ts",
+    "tests/**/*.ts"
+  ]
+}
