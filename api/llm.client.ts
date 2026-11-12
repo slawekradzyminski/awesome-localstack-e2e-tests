@@ -11,7 +11,8 @@ export class LlmClient extends ApiClient {
   }
 
   chatWithTools(messages: ChatMessageDto[], tools: unknown[]) {
-    return this.post(`${OLLAMA_ENDPOINT}/chat/tools`, { model: LLM_MODEL, messages, tools, stream: true },
+    // Same body shape as the frontend's useOllamaToolChat (options and think included).
+    return this.post(`${OLLAMA_ENDPOINT}/chat/tools`, { model: LLM_MODEL, messages, tools, options: { temperature: 0.4 }, think: false },
       { Accept: 'text/event-stream' });
   }
 
