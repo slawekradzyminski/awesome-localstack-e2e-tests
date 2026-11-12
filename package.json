@@ -19,6 +19,7 @@
     "test:payments": "playwright test --grep @payments",
     "test:qr": "playwright test --grep @qr",
     "test:search": "playwright test --grep @search",
+    "test:security": "playwright test --grep @security",
     "test:smoke": "playwright test --grep @smoke",
     "test:tax": "playwright test --grep \"@tax|@currencies\"",
     "test:tracking": "playwright test --grep @tracking",

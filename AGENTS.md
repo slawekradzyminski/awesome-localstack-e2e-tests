@@ -45,7 +45,7 @@ Imports use the tsconfig aliases `@api/*`, `@models/*`, `@pages/*`, `@support/*`
 - **Tags.** Every top-level `describe` has `{ tag: [...] }` with its feature: `@payments`,
   `@gift-cards`, `@loyalty`, `@tax`, `@currencies`, `@search`, `@tracking`, `@webhooks`,
   `@accounts`, `@catalog`, `@orders`, `@cart`, `@coupons`, `@admin`, `@qr`, `@llm`,
-  `@graphql`, `@journey`, `@smoke`. Add `@slow` to a test that waits more than ~5 s on background work
+  `@graphql`, `@security`, `@journey`, `@smoke`. Add `@slow` to a test that waits more than ~5 s on background work
   (delayed card settlement, event feed, retry back-off).
 - **Steps.** Helper actions and waits carry `@step('title {0}')` from `@support/step`, which
   wraps them in a boxed `test.step`; plain reads stay undecorated so polling does not flood
