@@ -1,12 +1,12 @@
 # BUG-INVENTORY-01: checkout right after a product is created answers 404 "Product not found"
 
-**Status:** open, found on the candidate images backend 3.22.0 (`backend-inv:native-3.22.0`) and
-warehouse-service 1.6.0 (`warehouse-service:inv-native`), not released. The tests that catch it are not marked
-`test.fixme`, because they still guard the released stack.
+**Status:** fixed in backend 3.22.0 (2026-11-15) before release: initial stock is now sent to warehouse-service
+synchronously during product create. It was found on an earlier build of the 3.22.0 candidate. The concurrency tests
+that caught it were never marked `test.fixme` and guard against it again.
 
 **Severity:** high (a product that the admin has just created cannot be bought for a short time, and the error says
 that the product does not exist)
-**Component:** backend 3.22.0, stock commands (contract section 4.3)
+**Component:** backend 3.22.0 candidate, stock commands (contract section 4.3)
 **Found by:** the first full run against the candidate images. `tests/api/tracking/concurrency.api.spec.ts` and
 `tests/api/payments/concurrency.api.spec.ts` create 8 products and check out straight away. 11 of the checkouts
 in that run got a 404, and payments passed only on retry.
