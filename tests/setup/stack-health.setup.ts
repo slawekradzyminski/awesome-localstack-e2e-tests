@@ -9,6 +9,7 @@ const services = [
   { name: 'backend', path: '/v3/api-docs' },
   { name: 'payment-service', path: '/payment/v3/api-docs' },
   { name: 'warehouse-service', path: '/warehouse/v3/api-docs' },
+  { name: 'notification-service', path: '/notification/v3/api-docs' },
 ];
 
 setup.describe('stack health', () => {

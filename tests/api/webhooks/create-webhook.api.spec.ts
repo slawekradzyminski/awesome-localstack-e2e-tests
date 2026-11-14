@@ -123,7 +123,7 @@ test.describe('POST /api/v1/webhooks', { tag: ['@webhooks'] }, () => {
     await expect(response).toHaveStatus(400);
     expect(await response.json()).toEqual({
       message: "Unknown event type 'order.shipped'. Allowed: order.created, order.paid, order.cancelled, shipment.shipped, "
-        + 'shipment.delivered, refund.booked, payment.failed, webhook.ping',
+        + 'shipment.delivered, refund.booked, payment.failed, order.reservation-expired, webhook.ping',
     });
   });
 

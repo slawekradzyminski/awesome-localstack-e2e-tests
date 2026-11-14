@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/base.page';
+import { ReservationCountdown } from '@pages/components/reservation-countdown.component';
 import { expect } from '@support/expect';
 import { OrderPaymentPanel } from './order-payment-panel.component';
 import { OrderShipment } from './order-shipment.component';
@@ -12,6 +13,7 @@ export class OrderDetailsPage extends BasePage {
   readonly vat: OrderVat;
   readonly payment: OrderPaymentPanel;
   readonly shipment: OrderShipment;
+  readonly reservation: ReservationCountdown;
 
   constructor(page: Page) {
     super(page);
@@ -20,6 +22,7 @@ export class OrderDetailsPage extends BasePage {
     this.vat = new OrderVat(page);
     this.payment = new OrderPaymentPanel(page);
     this.shipment = new OrderShipment(page);
+    this.reservation = new ReservationCountdown(page);
   }
 
   async goto(orderId: number): Promise<void> {

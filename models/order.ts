@@ -39,6 +39,8 @@ export interface OrderDto {
   pointsRedeemed?: number | null;
   pointsAmount?: number | null;
   amountDue?: number | null;
+  // Backend 3.21.0: end of the stock hold of a new order (omitted for legacy orders).
+  reservationExpiresAt?: string;
   shippingAddress: AddressDto;
   createdAt: string;
   updatedAt: string;

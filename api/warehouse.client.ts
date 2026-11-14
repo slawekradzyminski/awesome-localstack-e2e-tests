@@ -41,12 +41,38 @@ export class WarehouseClient extends ApiClient {
   advanceCarrier(id: number) {
     return this.post(`${SHIPMENTS_ENDPOINT}/${segment(id)}/carrier/advance`);
   }
+
+  // Omit targetLocation (or the body) to move the parcel to the best other active location.
+  reallocate(id: number, body?: { targetLocation?: string | null }) {
+    return this.post(`${SHIPMENTS_ENDPOINT}/${segment(id)}/reallocate`, body);
+  }
+
+  shortPick(id: number, body: { productId: number; missingQuantity: number }) {
+    return this.post(`${SHIPMENTS_ENDPOINT}/${segment(id)}/short-pick`, body);
+  }
+
+  locations() {
+    return this.get('/api/v1/warehouse/locations');
+  }
+
+  setLocationActive(code: string, active: boolean) {
+    return this.put(`/api/v1/warehouse/locations/${segment(code)}`, { active });
+  }
+
+  reconciliation() {
+    return this.get('/api/v1/warehouse/reconciliation');
+  }
 }
 
 export class TrackingClient extends ApiClient {
   // Owner or admin.
   orderShipment(orderId: number) {
     return this.get(`/api/v1/orders/${segment(orderId)}/shipment`);
+  }
+
+  // Every parcel of the order (warehouse-service 1.5.0).
+  orderShipments(orderId: number) {
+    return this.get(`/api/v1/orders/${segment(orderId)}/shipments`);
   }
 
   orderTracking(orderId: number) {

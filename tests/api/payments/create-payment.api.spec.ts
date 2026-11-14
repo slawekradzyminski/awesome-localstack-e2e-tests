@@ -129,7 +129,9 @@ test.describe('POST /api/v1/payments', { tag: ['@payments'] }, () => {
     const payment: PaymentDto = await response.json();
     expect(payment).toEqual(expectedPayment(order.id, 33, TEST_CARDS.duplicateNotification, 'CAPTURED'));
     await shopper.waitForOrderStatus(order.id, 'PAID');
-    // Both copies are sent right after the payment commits, so a second order.paid would already be recorded here.
+    // Both copies are sent right after the payment commits, so a second order.paid would reach the event feed
+    // next to the first; notification-service records the deliveries when it reads the feed.
+    await receiver.waitFor('order.paid', order.id);
     expect(await orderPayments(shopper, order.id)).toEqual([
       expectedPayment(order.id, 33, TEST_CARDS.duplicateNotification, 'CAPTURED'),
     ]);

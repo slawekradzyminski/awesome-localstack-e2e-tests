@@ -2,6 +2,7 @@ import { test as base } from '@playwright/test';
 import { ApiTestContext } from '@support/api-test-context';
 import { Shopper } from '@support/shopper';
 import { Admin, Warehouse } from '@support/staff';
+import { Locations } from '@support/locations';
 import { Parcels } from '@support/tracking';
 
 export interface ApiFixtures {
@@ -17,6 +18,8 @@ export interface ApiFixtures {
   warehouse: Warehouse;
   /** Ships paid orders to the simulated carrier and delivers every leftover parcel after the test. */
   parcels: Parcels;
+  /** Exclusive use of the warehouse locations (stack-wide state); switches every location back on afterwards. */
+  locations: Locations;
 }
 
 /** Fixtures for API-level tests; the UI fixtures build on them. Every fixture is created on first use only. */
@@ -42,6 +45,14 @@ export const test = base.extend<ApiFixtures>({
       await use(parcels);
     } finally {
       await parcels.deliverAll();
+    }
+  },
+  locations: async ({ warehouse }, use) => {
+    const locations = await Locations.lock(warehouse);
+    try {
+      await use(locations);
+    } finally {
+      await locations.unlock();
     }
   },
 });

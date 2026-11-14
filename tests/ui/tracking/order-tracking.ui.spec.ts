@@ -12,9 +12,9 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     await orderDetailsPage.goto(parcel.orderId);
 
     // then
-    await expect(orderDetailsPage.shipment.status).toHaveText('SHIPPED');
-    await expect(orderDetailsPage.shipment.carrierAndNumber).toHaveText(`UPS · ${parcel.trackingNumber}`);
-    const { timeline } = orderDetailsPage.shipment;
+    await expect(orderDetailsPage.shipment.parcel(1).status).toHaveText('SHIPPED');
+    await expect(orderDetailsPage.shipment.parcel(1).carrierAndNumber).toHaveText(`UPS · ${parcel.trackingNumber}`);
+    const { timeline } = orderDetailsPage.shipment.parcel(1);
     await expect(timeline.currentStatus).toHaveText('Label created');
     await expect(timeline.carrier).toHaveText('UPS');
     await expect(timeline.trackingNumber).toHaveText(parcel.trackingNumber);
@@ -23,7 +23,7 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     const [labelCreated] = expectedRoute('UPS', parcel.trackingNumber);
     await expect(timeline.event(0).description).toHaveText(labelCreated.description);
     await expect(timeline.event(0).location).toHaveText(`${labelCreated.location} · `);
-    await expect(orderDetailsPage.shipment.publicTrackingLink).toHaveAttribute('href', `/track/${parcel.trackingNumber}`);
+    await expect(orderDetailsPage.shipment.parcel(1).publicTrackingLink).toHaveAttribute('href', `/track/${parcel.trackingNumber}`);
   });
 
   test('picks up new carrier scans on its 30-second refresh', async ({ shopperPage, shopper, parcels, orderDetailsPage }) => {
@@ -31,7 +31,7 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     await shopperPage.clock.install();
     const parcel = await parcels.shipSimulated(shopper, 'DHL', 'direct');
     await orderDetailsPage.goto(parcel.orderId);
-    await expect(orderDetailsPage.shipment.timeline.currentStatus).toHaveText('Label created');
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.currentStatus).toHaveText('Label created');
 
     // when
     await parcels.advance(parcel.shipment.id);
@@ -39,9 +39,9 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     await shopperPage.clock.runFor(30_000);
 
     // then
-    await expect(orderDetailsPage.shipment.timeline.currentStatus).toHaveText('In transit');
-    await orderDetailsPage.shipment.timeline.expectScans(['LABEL_CREATED', 'IN_TRANSIT', 'IN_TRANSIT']);
-    await expect(orderDetailsPage.shipment.timeline.event(2).location).toHaveText(`DHL depot, ${deliveryCity(parcel.trackingNumber)} · `);
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.currentStatus).toHaveText('In transit');
+    await orderDetailsPage.shipment.parcel(1).timeline.expectScans(['LABEL_CREATED', 'IN_TRANSIT', 'IN_TRANSIT']);
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.event(2).location).toHaveText(`DHL depot, ${deliveryCity(parcel.trackingNumber)} · `);
   });
 
   test('shows a delivered parcel with every scan and the delivery time', async ({ shopper, parcels, orderDetailsPage }) => {
@@ -54,11 +54,11 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     await orderDetailsPage.goto(parcel.orderId);
 
     // then
-    await expect(orderDetailsPage.shipment.status).toHaveText('DELIVERED');
-    await expect(orderDetailsPage.shipment.timeline.currentStatus).toHaveText('Delivered');
-    await expect(orderDetailsPage.shipment.timeline.estimatedDelivery).toHaveText(/^Delivered: .+/);
-    await orderDetailsPage.shipment.timeline.expectScans(['LABEL_CREATED', 'IN_TRANSIT', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED']);
-    await expect(orderDetailsPage.shipment.timeline.event(4).description).toHaveText('Delivered to the parcel locker');
+    await expect(orderDetailsPage.shipment.parcel(1).status).toHaveText('DELIVERED');
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.currentStatus).toHaveText('Delivered');
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.estimatedDelivery).toHaveText(/^Delivered: .+/);
+    await orderDetailsPage.shipment.parcel(1).timeline.expectScans(['LABEL_CREATED', 'IN_TRANSIT', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED']);
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.event(4).description).toHaveText('Delivered to the parcel locker');
   });
 
   test('highlights a failed delivery attempt', async ({ shopper, parcels, orderDetailsPage }) => {
@@ -70,10 +70,10 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     await orderDetailsPage.goto(parcel.orderId);
 
     // then
-    await expect(orderDetailsPage.shipment.timeline.currentStatus).toHaveText(TRACKING_LABELS.DELIVERY_FAILED);
-    await orderDetailsPage.shipment.timeline.expectScans(['LABEL_CREATED', 'IN_TRANSIT', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERY_FAILED']);
-    await expect(orderDetailsPage.shipment.timeline.event(4).root).toHaveAttribute('data-status', 'DELIVERY_FAILED');
-    await expect(orderDetailsPage.shipment.timeline.event(4).description)
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.currentStatus).toHaveText(TRACKING_LABELS.DELIVERY_FAILED);
+    await orderDetailsPage.shipment.parcel(1).timeline.expectScans(['LABEL_CREATED', 'IN_TRANSIT', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERY_FAILED']);
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.event(4).root).toHaveAttribute('data-status', 'DELIVERY_FAILED');
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.event(4).description)
       .toHaveText('Delivery attempt failed: the recipient was not available. The courier will try again');
   });
 
@@ -84,10 +84,10 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     await orderDetailsPage.goto(parcel.orderId);
 
     // when
-    await orderDetailsPage.shipment.timeline.copyNumber();
+    await orderDetailsPage.shipment.parcel(1).timeline.copyNumber();
 
     // then
-    await expect(orderDetailsPage.shipment.timeline.copyStatus).toHaveText('Copied');
+    await expect(orderDetailsPage.shipment.parcel(1).timeline.copyStatus).toHaveText('Copied');
     expect(await shopperPage.evaluate(() => navigator.clipboard.readText())).toBe(parcel.trackingNumber);
   });
 
@@ -97,7 +97,7 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     await orderDetailsPage.goto(parcel.orderId);
 
     // when
-    await orderDetailsPage.shipment.openPublicTracking();
+    await orderDetailsPage.shipment.parcel(1).openPublicTracking();
 
     // then
     await expect(shopperPage).toHaveURL(`/track/${parcel.trackingNumber}`);
@@ -112,9 +112,9 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
     await orderDetailsPage.goto(orderId);
 
     // then
-    await expect(orderDetailsPage.shipment.status).toHaveText('PACKED');
-    await expect(orderDetailsPage.shipment.carrierAndNumber).toBeHidden();
-    await expect(orderDetailsPage.shipment.tracking).toBeHidden();
+    await expect(orderDetailsPage.shipment.parcel(1).status).toHaveText('PACKED');
+    await expect(orderDetailsPage.shipment.parcel(1).carrierAndNumber).toBeHidden();
+    await expect(orderDetailsPage.shipment.parcel(1).tracking).toBeHidden();
   });
 
   test('explains that an unpaid order is not with the warehouse yet', async ({ shopper, orderDetailsPage }) => {
@@ -126,6 +126,6 @@ test.describe('order details - carrier tracking', { tag: ['@tracking'] }, () => 
 
     // then
     await expect(orderDetailsPage.shipment.none).toHaveText('Not handed to the warehouse yet. Orders are packed once payment is confirmed.');
-    await expect(orderDetailsPage.shipment.tracking).toBeHidden();
+    await expect(orderDetailsPage.shipment.parcel(1).tracking).toBeHidden();
   });
 });

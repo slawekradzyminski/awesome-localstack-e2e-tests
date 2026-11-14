@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from '@pages/base.page';
+import { ReservationCountdown } from '@pages/components/reservation-countdown.component';
 import { expect } from '@support/expect';
 import { CardForm } from './card-form.component';
 import { ThreeDsDialog } from './three-ds-dialog.component';
@@ -28,9 +29,11 @@ export class PaymentPage extends BasePage {
   readonly alreadyPaid: Locator;
   readonly cancelled: Locator;
   readonly paidByTenders: Locator;
+  readonly reservation: ReservationCountdown;
 
   constructor(page: Page) {
     super(page);
+    this.reservation = new ReservationCountdown(page);
     this.title = page.getByTestId('payment-title');
     this.orderNotFound = page.getByTestId('payment-order-not-found');
     this.total = page.getByTestId('payment-order-total');
