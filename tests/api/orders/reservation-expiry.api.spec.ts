@@ -5,8 +5,6 @@ import { TEST_CARDS } from '@api/payments.client';
 import { InboxReceiver, isSignedWith } from '@support/webhooks';
 import type { OrderDto } from '@models/order';
 import type { PageDto } from '@models/page';
-import type { ProductDto } from '@models/product';
-import type { ApiTestContext } from '@support/api-test-context';
 
 // Backend 3.21.0: stock deducted at checkout is a hold that ends at reservationExpiresAt (ORDERS_RESERVATION_TTL,
 // 30 minutes in the stacks). POST /api/v1/admin/orders/{id}/expire-reservation ends it now, as the expiry job would.
@@ -34,10 +32,10 @@ test.describe('Order reservations', { tag: ['@orders', '@reservations'] }, () =>
     expect(all.content.find(listed => listed.id === order.id)?.reservationExpiresAt).toBe(order.reservationExpiresAt);
   });
 
-  test('expiring the reservation cancels the order and puts the stock back - 200', async ({ api, shopper, admin }) => {
+  test('expiring the reservation cancels the order and puts the stock back - 200', async ({ shopper, admin }) => {
     // given
     const { order, product } = await shopper.placeOrder(25);
-    const held = await stockOf(api, product);
+    const held = await admin.stockOf(product.id);
 
     // when
     const response = await admin.orders.expireReservation(order.id);
@@ -48,8 +46,11 @@ test.describe('Order reservations', { tag: ['@orders', '@reservations'] }, () =>
     expect(expired).toMatchObject({ id: order.id, status: 'CANCELLED' });
     expect(Date.parse(expired.reservationExpiresAt!)).toBeLessThan(Date.parse(order.reservationExpiresAt!));
     expect(await shopper.getOrder(order.id)).toMatchObject({ status: 'CANCELLED', reservationExpiresAt: expired.reservationExpiresAt });
-    expect(await stockOf(api, product)).toBe(held + 1);
-    expect(await latestMovement(api, product)).toMatchObject({ orderId: order.id, type: 'ORDER_RESTORED', delta: 1, actor: 'system' });
+    // warehouse-service restores the stock from the order.cancelled event (backend 3.22.0, asynchronous)
+    await admin.waitForStock(product.id, held + 1);
+    expect(await admin.waitForRestoredMovements(product.id, order.id)).toEqual([
+      expect.objectContaining({ orderId: order.id, type: 'ORDER_RESTORED', delta: 1, quantityAfter: held + 1, actor: 'system' }),
+    ]);
   });
 
   test('a payment started after the reservation expired is refused - 409', async ({ shopper, admin }) => {
@@ -136,17 +137,3 @@ test.describe('Order reservations', { tag: ['@orders', '@reservations'] }, () =>
     expect((await shopper.getOrder(order.id)).status).toBe('PENDING');
   });
 });
-
-async function stockOf(api: ApiTestContext, product: ProductDto): Promise<number> {
-  const response = await (await api.adminProducts()).getById(product.id);
-  await expect(response, `Read product ${product.id}`).toHaveStatus(200);
-  return ((await response.json()) as ProductDto).stockQuantity;
-}
-
-async function latestMovement(api: ApiTestContext, product: ProductDto): Promise<Record<string, unknown>> {
-  const response = await api.request.get(`/api/v1/admin/inventory/${product.id}/movements`, {
-    headers: { Authorization: `Bearer ${await api.getAdminToken()}` },
-  });
-  await expect(response, `Movements of product ${product.id}`).toHaveStatus(200);
-  return (await response.json()).content[0];
-}

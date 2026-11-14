@@ -13,6 +13,7 @@
     "test:fast": "playwright test --grep-invert @slow",
     "test:gift-cards": "playwright test --grep @gift-cards",
     "test:graphql": "playwright test --grep @graphql",
+    "test:inventory": "playwright test --grep @inventory",
     "test:journeys": "playwright test --project=journeys",
     "test:llm": "playwright test --grep @llm",
     "test:loyalty": "playwright test --grep @loyalty",

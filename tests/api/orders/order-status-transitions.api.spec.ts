@@ -1,15 +1,13 @@
 import { test, expect } from '@fixtures';
 import type { OrderDto, OrderStatus } from '@models/order';
-import type { ProductDto } from '@models/product';
-import type { ApiTestContext } from '@support/api-test-context';
 
 // T-024: order statuses only move forward (steps may be skipped); DELIVERED and CANCELLED are terminal.
 test.describe('PUT /api/v1/orders/{id}/status - forward-only transitions', { tag: ['@orders'] }, () => {
-  test('a cancelled order cannot be set back to PAID and its stock is not taken again - 400', async ({ api, shopper, admin }) => {
-    // given
+  test('a cancelled order cannot be set back to PAID and its stock is not taken again - 400', async ({ shopper, admin }) => {
+    // given: the cancel gives the unit back asynchronously (warehouse-service owns the ledger since 1.6.0)
     const { order, product } = await shopper.placeOrder(30);
     await expect(await admin.orders.updateStatus(order.id, 'CANCELLED'), 'Cancel the order').toHaveStatus(200);
-    const stockAfterCancel = await stockOf(api, product);
+    await admin.waitForStock(product.id, product.stockQuantity);
 
     // when
     const response = await admin.orders.updateStatus(order.id, 'PAID');
@@ -18,7 +16,7 @@ test.describe('PUT /api/v1/orders/{id}/status - forward-only transitions', { tag
     await expect(response).toHaveStatus(400);
     expect(await response.json()).toEqual({ message: 'Cannot change order status from CANCELLED to PAID' });
     expect((await shopper.getOrder(order.id)).status).toBe('CANCELLED');
-    expect(await stockOf(api, product)).toBe(stockAfterCancel);
+    expect(await admin.stockOf(product.id)).toBe(product.stockQuantity);
   });
 
   const backward: [OrderStatus, OrderStatus][] = [
@@ -107,9 +105,3 @@ test.describe('Order mutations - response matches the stored order', { tag: ['@o
     expect(shipped.updatedAt).toBe((await shopper.getOrder(order.id)).updatedAt);
   });
 });
-
-async function stockOf(api: ApiTestContext, product: ProductDto): Promise<number> {
-  const response = await (await api.adminProducts()).getById(product.id);
-  await expect(response, `Read product ${product.id}`).toHaveStatus(200);
-  return ((await response.json()) as ProductDto).stockQuantity;
-}
