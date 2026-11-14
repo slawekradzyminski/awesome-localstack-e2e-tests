@@ -66,8 +66,8 @@ test.describe('storefront journey', { tag: ['@journey', '@slow'] }, () => {
       await shopper.waitForOrderStatus(orderId, 'DELIVERED');
       await orderDetailsPage.goto(orderId);
       await expect(orderDetailsPage.status).toHaveText('DELIVERED');
-      await expect(orderDetailsPage.shipment.timeline.currentStatus).toHaveText('Delivered');
-      await expect(orderDetailsPage.shipment.timeline.trackingNumber).toHaveText(trackingNumber);
+      await expect(orderDetailsPage.shipment.parcel(1).timeline.currentStatus).toHaveText('Delivered');
+      await expect(orderDetailsPage.shipment.parcel(1).timeline.trackingNumber).toHaveText(trackingNumber);
     });
 
     await test.step('anyone can track the parcel without signing in', async () => {

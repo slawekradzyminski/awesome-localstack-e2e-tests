@@ -101,7 +101,7 @@ test.describe('webhook deliveries of commerce events', { tag: ['@webhooks'] }, (
     // then
     await expect(response).toHaveStatus(200);
     const webhook = await receiver.waitFor('order.cancelled', order.id);
-    expectSignedEvent(webhook, receiver, 'order.cancelled', { orderId: order.id, status: 'CANCELLED', totalAmount: 12.5 });
+    expectSignedEvent(webhook, receiver, 'order.cancelled', { orderId: order.id, status: 'CANCELLED', totalAmount: 12.5, reason: 'CUSTOMER' });
   });
 
   test('shipment.shipped and shipment.delivered follow the parcel through the simulated carrier', async ({ shopper, parcels }) => {

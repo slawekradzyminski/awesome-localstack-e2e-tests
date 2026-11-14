@@ -12,6 +12,7 @@ import { header, signatureMatches } from './webhook-signature';
 // Event types a subscription can name, in the order GET /api/v1/webhooks/event-types lists them.
 export const COMMERCE_EVENTS: WebhookEventType[] = [
   'order.created', 'order.paid', 'order.cancelled', 'shipment.shipped', 'shipment.delivered', 'refund.booked', 'payment.failed',
+  'order.reservation-expired',
 ];
 
 export const SECRET_FORMAT = /^whsec_[A-Za-z0-9_-]{43}$/;
@@ -102,8 +103,9 @@ export class InboxReceiver {
   }
 
   /**
-   * Payloads of `type` about the order that the backend has published to this subscription.
-   * Deliveries are recorded when the event is published, before they are sent.
+   * Payloads of `type` about the order that were published to this subscription. notification-service records
+   * the deliveries when it reads the event from the backend's feed (a few seconds after the commit), before
+   * it sends them.
    */
   async publishedEvents(type: WebhookEventType, orderId: number): Promise<WebhookPayload[]> {
     return (await this.deliveries())

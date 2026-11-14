@@ -16,6 +16,7 @@ test.describe('GET /api/v1/webhooks/event-types', { tag: ['@webhooks'] }, () => 
       { name: 'shipment.delivered', description: 'An order was delivered' },
       { name: 'refund.booked', description: 'A refund was booked for an order' },
       { name: 'payment.failed', description: 'A payment attempt failed' },
+      { name: 'order.reservation-expired', description: 'The stock reservation of an unpaid order expired' },
       { name: 'webhook.ping', description: 'Sent by POST /api/v1/webhooks/{id}/test' },
     ]);
   });

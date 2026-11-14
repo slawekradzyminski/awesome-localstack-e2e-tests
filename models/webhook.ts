@@ -1,5 +1,5 @@
 export type WebhookEventType =
-  | 'order.created' | 'order.paid' | 'order.cancelled' | 'shipment.shipped' | 'shipment.delivered'
+  | 'order.created' | 'order.paid' | 'order.cancelled' | 'order.reservation-expired' | 'shipment.shipped' | 'shipment.delivered'
   | 'refund.booked' | 'payment.failed';
 
 // What a subscription may list: the commerce events plus the test ping.
