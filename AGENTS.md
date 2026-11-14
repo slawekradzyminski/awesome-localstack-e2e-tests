@@ -45,7 +45,7 @@ Imports use the tsconfig aliases `@api/*`, `@models/*`, `@pages/*`, `@support/*`
 - **Tags.** Every top-level `describe` has `{ tag: [...] }` with its feature: `@payments`,
   `@gift-cards`, `@loyalty`, `@tax`, `@currencies`, `@search`, `@tracking`, `@webhooks`,
   `@accounts`, `@catalog`, `@orders`, `@cart`, `@coupons`, `@admin`, `@qr`, `@llm`,
-  `@graphql`, `@security`, `@journey`, `@smoke`. Add `@slow` to a test that waits more than ~5 s on background work
+  `@graphql`, `@security`, `@journey`, `@smoke`, `@reservations`, `@fulfilment`, `@notifications`. Add `@slow` to a test that waits more than ~5 s on background work
   (delayed card settlement, event feed, retry back-off).
 - **Steps.** Helper actions and waits carry `@step('title {0}')` from `@support/step`, which
   wraps them in a boxed `test.step`; plain reads stay undecorated so polling does not flood
@@ -56,6 +56,9 @@ Imports use the tsconfig aliases `@api/*`, `@models/*`, `@pages/*`, `@support/*`
   asserts only in methods named `expect*`; `goto()` synchronises with `locator.waitFor()`.
   Every routed page extends `BasePage`. A page object used by several specs is a fixture in
   `fixtures/ui.fixtures.ts`, bound to the page of the role that uses it.
+- **Shared stack state.** Warehouse locations (KRK, GDN) are stack-wide: a test that asserts where its
+  order's parcels are allocated, or switches a location, takes the `locations` fixture. It holds a
+  cross-worker lock for the test and switches every location back on afterwards.
 - **Bugs.** A failing behaviour that is a product defect gets a report in `bugs/` and the
   test stays, marked `test.fixme(true, 'bugs/<file>.md')` as its first line. Do not weaken
   the assertion to make it pass; remove the fixme when the bug is fixed.

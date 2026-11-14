@@ -12,13 +12,16 @@ depth, and the regression tests for every defect fixed in the older features are
 | VAT and currencies | backend |
 | Product search and facets | backend |
 | Shipment tracking (simulated carrier) | warehouse-service → backend mirror |
-| User webhooks with HMAC signatures | backend outbox → built-in inbox |
+| Split shipments from the Krakow and Gdansk locations | warehouse-service (allocation, reallocate, short pick) → backend mirror |
+| Stock reservations that expire | backend → event feed → payment-service (void) and notification-service |
+| User webhooks with HMAC signatures | backend event feed → notification-service → built-in inbox |
+| Commerce emails (My notifications) | backend `notification.requested` → notification-service |
 | Refunds and cancellations | backend event feed → payment-service and warehouse-service |
 | Accounts, identity and validation | backend |
 | Catalog, cart, coupons, orders, admin screens | backend + frontend |
 | QR codes and LLM chat | backend + frontend + ollama-mock |
 
-**728 tests**: 528 API, 195 UI and 5 journeys, plus 4 stack-health checks. They run in
+**820 tests**: 596 API, 219 UI and 5 journeys, plus 5 stack-health checks. They run in
 about 4 minutes with 4 workers against a laptop stack (about 600 MB of RAM for the whole
 lightweight profile).
 
