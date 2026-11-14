@@ -93,15 +93,18 @@ test.describe('webhook deliveries of commerce events', { tag: ['@webhooks'] }, (
   test('order.cancelled is delivered when the customer cancels', async ({ shopper }) => {
     // given
     const receiver = await InboxReceiver.subscribe(shopper, ['order.cancelled']);
-    const { order } = await shopper.placeOrder(12.5);
+    const { order, product } = await shopper.placeOrder(12.5);
 
     // when
     const response = await shopper.orders.cancel(order.id);
 
-    // then
+    // then: backend 3.22.0 adds stockRestore, the command warehouse-service restores the stock from (additive field)
     await expect(response).toHaveStatus(200);
     const webhook = await receiver.waitFor('order.cancelled', order.id);
-    expectSignedEvent(webhook, receiver, 'order.cancelled', { orderId: order.id, status: 'CANCELLED', totalAmount: 12.5, reason: 'CUSTOMER' });
+    expectSignedEvent(webhook, receiver, 'order.cancelled', {
+      orderId: order.id, status: 'CANCELLED', totalAmount: 12.5, reason: 'CUSTOMER',
+      stockRestore: { actor: shopper.username, lines: [{ productId: product.id, quantity: 1 }] },
+    });
   });
 
   test('shipment.shipped and shipment.delivered follow the parcel through the simulated carrier', async ({ shopper, parcels }) => {
