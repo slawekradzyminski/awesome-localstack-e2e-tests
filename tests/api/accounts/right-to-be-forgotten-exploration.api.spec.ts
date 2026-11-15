@@ -26,16 +26,17 @@ test.describe('DELETE /api/v1/users/{username}/right-to-be-forgotten - open orde
     const delivered = await customer.order(deliveredProduct, 1);
     await expect(await admin.orders.updateStatus(paid.id, 'PAID'), 'Mark the order paid').toHaveStatus(200);
     await expect(await admin.orders.updateStatus(delivered.id, 'DELIVERED'), 'Mark the order delivered').toHaveStatus(200);
-    expect(await stockOf(api, pendingProduct)).toBe(3);
+    expect(await admin.stockOf(pendingProduct.id)).toBe(3);
 
     // when
     const response = await customer.client.forget(customer.username);
 
     // then
     await expect(response).toHaveStatus(204);
-    expect(await stockOf(api, pendingProduct)).toBe(5);
-    expect(await stockOf(api, paidProduct)).toBe(5);
-    expect(await stockOf(api, deliveredProduct)).toBe(4);
+    // the cancelled orders' stock comes back through warehouse-service (backend 3.22.0, asynchronous)
+    await admin.waitForStock(pendingProduct.id, 5);
+    await admin.waitForStock(paidProduct.id, 5);
+    expect(await admin.stockOf(deliveredProduct.id)).toBe(4);
     await expect(await admin.orders.getById(paid.id), 'The erased order is gone').toHaveStatus(404);
   });
 
@@ -52,7 +53,7 @@ test.describe('DELETE /api/v1/users/{username}/right-to-be-forgotten - open orde
 
       // then
       await expect(response).toHaveStatus(204);
-      expect(await stockOf(api, product)).toBe(5);
+      await admin.waitForStock(product.id, 5);
       await expect.poll(async () => paymentStatus(admin.payments, payment.id),
         { message: `payment ${payment.id} is refunded`, timeout: ASYNC_TIMEOUT, intervals: POLL_INTERVALS })
         .toBe('REFUNDED');
@@ -83,12 +84,6 @@ async function forgettableCustomer(api: ApiTestContext) {
       return response.json();
     },
   };
-}
-
-async function stockOf(api: ApiTestContext, product: ProductDto): Promise<number> {
-  const response = await (await api.adminProducts()).getById(product.id);
-  await expect(response, `Read product ${product.id}`).toHaveStatus(200);
-  return ((await response.json()) as ProductDto).stockQuantity;
 }
 
 async function orderStatus(orders: OrdersClient, orderId: number): Promise<OrderStatus> {

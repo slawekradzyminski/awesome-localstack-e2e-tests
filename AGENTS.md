@@ -39,13 +39,17 @@ Imports use the tsconfig aliases `@api/*`, `@models/*`, `@pages/*`, `@support/*`
   against one stack share the pool.
 - **No sleeps.** Wait for state: web-first assertions, `expect.poll` with `ASYNC_TIMEOUT` and
   `POLL_INTERVALS` from `@config`, or the `waitFor*` helpers. `waitForTimeout` is a lint error.
+- **Stock is eventually consistent.** warehouse-service owns the stock ledger (1.6.0, backend 3.22.0).
+  Checkout and admin adjust are synchronous, but after a cancel, an expiry, a purchase receipt or a
+  return restock the stock and the movements come back asynchronously (typically 5-15 s): use
+  `admin.waitForStock` and `admin.waitForRestoredMovements`, never a single read.
 - **Statuses.** `await expect(response, 'what the call does').toHaveStatus(201)`, from the
   shared `expect` (`@fixtures` in specs, `@support/expect` elsewhere). It accepts browser
   responses and a list (`[204, 404]`) and prints the URL and body on failure.
 - **Tags.** Every top-level `describe` has `{ tag: [...] }` with its feature: `@payments`,
   `@gift-cards`, `@loyalty`, `@tax`, `@currencies`, `@search`, `@tracking`, `@webhooks`,
   `@accounts`, `@catalog`, `@orders`, `@cart`, `@coupons`, `@admin`, `@qr`, `@llm`,
-  `@graphql`, `@security`, `@journey`, `@smoke`, `@reservations`, `@fulfilment`, `@notifications`. Add `@slow` to a test that waits more than ~5 s on background work
+  `@graphql`, `@security`, `@journey`, `@smoke`, `@reservations`, `@fulfilment`, `@notifications`, `@inventory`. Add `@slow` to a test that waits more than ~5 s on background work
   (delayed card settlement, event feed, retry back-off).
 - **Steps.** Helper actions and waits carry `@step('title {0}')` from `@support/step`, which
   wraps them in a boxed `test.step`; plain reads stay undecorated so polling does not flood
