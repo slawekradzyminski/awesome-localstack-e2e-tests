@@ -19,10 +19,23 @@ concurrency:
 
 jobs:
   e2e:
+    # The suite is CPU bound in CI: 827 tests add up to about 45 minutes of test time, and four
+    # workers share a 4-core runner with the stack they test (11.6 min for the run). Four jobs,
+    # each with its own stack, cut the wall time to roughly the slowest job plus 1.5 min of setup.
+    # Plain --shard=N/3 put every browser test in the last shard (238 s against 69 s), so the API
+    # project and the browser projects are halved separately.
+    name: e2e (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: api-1, args: '--project=api --shard=1/2' }
+          - { name: api-2, args: '--project=api --shard=2/2' }
+          - { name: ui-1, args: '--project=ui --project=journeys --shard=1/2' }
+          - { name: ui-2, args: '--project=ui --project=journeys --shard=2/2' }
     runs-on: ubuntu-latest
-    # Slowest job so far was 16 min (a PR failing with traces ran 13.4 min of tests);
-    # 25 min stops a hung stack or test run early instead of billing 40 min.
-    timeout-minutes: 25
+    # An unsharded run took 16 min; 15 min per job stops a hung stack or test run early.
+    timeout-minutes: 15
     env:
       APP_BASE_URL: http://127.0.0.1:8081
       CI: true
@@ -79,8 +92,9 @@ jobs:
           npx playwright install chromium --with-deps
           wait "$pull_pid"
 
+      # Static checks do not depend on the shard, so one job runs them.
       - name: Typecheck and lint
-        if: steps.changes.outputs.run == 'true'
+        if: steps.changes.outputs.run == 'true' && matrix.name == 'api-1'
         run: npm run check
 
       - name: Start the lightweight stack
@@ -93,7 +107,7 @@ jobs:
 
       - name: Run the suite
         if: steps.changes.outputs.run == 'true'
-        run: npx playwright test
+        run: npx playwright test ${{ matrix.args }}
 
       - name: Stack logs on failure
         if: ${{ failure() && steps.changes.outputs.run == 'true' }}
@@ -105,7 +119,7 @@ jobs:
       - uses: actions/upload-artifact@v7.0.2
         if: ${{ !cancelled() && steps.changes.outputs.run == 'true' }}
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.name }}
           path: |
             playwright-report/
             test-results/
