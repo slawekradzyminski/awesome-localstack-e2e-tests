@@ -128,10 +128,11 @@ suite asserts.
 
 `.github/workflows/commerce-e2e.yml` checks out awesome-localstack, starts the lightweight
 profile with the pinned images and runs typecheck, lint and all projects. The suite is split
-into three shards (`--shard=N/3`), each a job with its own stack, because four workers and the
-stack compete for the runner's four cores. Each shard uploads its HTML report and traces as
-the artifact `playwright-report-shard-N`. To test a new image pin before it reaches `main`,
+into four jobs, each with its own stack, because four workers and the stack compete for the
+runner's four cores: `api-1` and `api-2` halve the API project, `ui-1` and `ui-2` halve the
+browser projects (`ui` and `journeys`). Each job uploads its HTML report and traces as the
+artifact `playwright-report-<job>`. To test a new image pin before it reaches `main`,
 run the workflow by hand with `localstack_ref`.
 A change that touches only Markdown files (README, AGENTS.md, `bugs/*.md`) skips the stack
 and the suite; the run still concludes successfully. A newer push to the same branch or pull
-request cancels the running workflow, and each shard is limited to 15 minutes.
+request cancels the running workflow, and each job is limited to 15 minutes.
