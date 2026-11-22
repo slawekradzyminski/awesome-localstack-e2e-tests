@@ -130,3 +130,6 @@ suite asserts.
 profile with the pinned images and runs typecheck, lint and all projects. The HTML report
 and traces are uploaded as an artifact. To test a new image pin before it reaches `main`,
 run the workflow by hand with `localstack_ref`.
+A change that touches only Markdown files (README, AGENTS.md, `bugs/*.md`) skips the stack
+and the suite; the run still concludes successfully. A newer push to the same branch or pull
+request cancels the running workflow, and the job is limited to 25 minutes.
