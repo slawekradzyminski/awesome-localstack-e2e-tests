@@ -20,52 +20,90 @@ concurrency:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    # Slowest job so far was 16 min (a PR failing with traces ran 13.4 min of tests);
+    # 25 min stops a hung stack or test run early instead of billing 40 min.
+    timeout-minutes: 25
     env:
       APP_BASE_URL: http://127.0.0.1:8081
       CI: true
     steps:
       - uses: actions/checkout@v7.0.1
+        with:
+          # Full history so the next step can diff against the previous main head.
+          fetch-depth: 0
+
+      # A change that touches only Markdown (README, AGENTS.md, bugs/*.md) cannot change a
+      # test result, so the 13-minute stack run is skipped. The job still concludes
+      # success. Anything not comparable (manual run, first push) runs everything.
+      - name: Classify the changed files
+        id: changes
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          files=""
+          if [[ "$EVENT" == pull_request ]]; then
+            # The checked-out merge commit: first parent is the base branch.
+            files="$(git diff --name-only HEAD^1 HEAD)"
+          elif [[ "$EVENT" == push && -n "$BEFORE" ]] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            files="$(git diff --name-only "$BEFORE" "$GITHUB_SHA")"
+          fi
+          run=true
+          if [[ -n "$files" ]]; then
+            if ! grep -qvE '(^|/)[^/]+\.md$' <<<"$files"; then run=false; fi
+          fi
+          printf '%s\n' "$files" | sed 's/^/  /'
+          echo "run=$run"
+          echo "run=$run" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v7.0.1
+        if: steps.changes.outputs.run == 'true'
         with:
           repository: slawekradzyminski/awesome-localstack
           ref: ${{ inputs.localstack_ref || 'main' }}
           path: localstack
 
       - uses: actions/setup-node@v7.1.0
+        if: steps.changes.outputs.run == 'true'
         with:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Install dependencies and Chromium
+      # The image pull (~20 s, network bound) overlaps with npm ci and the Chromium install.
+      - name: Install dependencies and Chromium, pull the stack images meanwhile
+        if: steps.changes.outputs.run == 'true'
         run: |
+          (cd localstack && docker compose -f lightweight-docker-compose.yml pull --quiet --ignore-buildable) &
+          pull_pid=$!
           npm ci
           npx playwright install chromium --with-deps
+          wait "$pull_pid"
 
       - name: Typecheck and lint
+        if: steps.changes.outputs.run == 'true'
         run: npm run check
 
       - name: Start the lightweight stack
+        if: steps.changes.outputs.run == 'true'
         working-directory: localstack
         run: |
-          docker compose -f lightweight-docker-compose.yml pull --ignore-buildable
           docker compose -f lightweight-docker-compose.yml up -d --wait --wait-timeout 300
           curl --fail --silent --show-error http://127.0.0.1:8081/payment/v3/api-docs >/dev/null
           curl --fail --silent --show-error http://127.0.0.1:8081/warehouse/v3/api-docs >/dev/null
 
       - name: Run the suite
+        if: steps.changes.outputs.run == 'true'
         run: npx playwright test
 
       - name: Stack logs on failure
-        if: failure()
+        if: ${{ failure() && steps.changes.outputs.run == 'true' }}
         working-directory: localstack
         run: |
           docker compose -f lightweight-docker-compose.yml ps --all
           docker compose -f lightweight-docker-compose.yml logs --no-color --tail=300
 
       - uses: actions/upload-artifact@v7.0.2
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.changes.outputs.run == 'true' }}
         with:
           name: playwright-report
           path: |
